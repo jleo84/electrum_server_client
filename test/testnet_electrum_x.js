@@ -1,20 +1,17 @@
 global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
 global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
 
-const ElectrumConnection = require("../index");
+const { TESTNET, ElectrumConnection } = require("../index");
 const { describe, it, after, before } = require('mocha');
 var chai = require('chai');
 var expect = chai.expect;
-
-const { networks } = require("bitcoinjs-lib");
-
 
 describe('tests on testnet, server: ElectrumX', () => {
 
     let electrumConnection;
 
     before('connecting to server', function () {
-        electrumConnection = new ElectrumConnection({ host: 'testnet.aranguren.org', ssl: '51002' }, networks.testnet);
+        electrumConnection = new ElectrumConnection({ host: 'testnet.aranguren.org', ssl: '51002' }, TESTNET);
         return electrumConnection.connect();
     });
 

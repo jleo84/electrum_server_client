@@ -7,6 +7,9 @@ const BigNumber = require('bignumber.js');
 
 const utils = require("./utils");
 
+const TESTNET = bitcoin.networks.testnet;
+
+const MAINNET = bitcoin.networks.bitcoin;
 
 class ElectrumConnection {
 
@@ -291,4 +294,4 @@ class ElectrumConnection {
 
 
 
-module.exports = ElectrumConnection;
+module.exports = { TESTNET, MAINNET, ElectrumConnection };
