@@ -1,0 +1,21 @@
+{
+  "name": "electrum_server_client",
+  "version": "0.0.1",
+  "description": "A simple client for Electrum Server",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bignumber.js": "^9.0.0",
+    "bitcoinjs-lib": "^5.1.10",
+    "buffer-reverse": "^1.0.1",
+    "electrum-client": "git+https://github.com/BlueWallet/rn-electrum-client.git"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.1.2"
+  }
+}
