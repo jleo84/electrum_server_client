@@ -11,7 +11,8 @@ describe('tests on testnet, server: ElectrumX', () => {
     let electrumConnection;
 
     before('connecting to server', function () {
-        electrumConnection = new ElectrumConnection({ host: 'testnet.aranguren.org', ssl: '51002' }, TESTNET);
+        //electrumConnection = new ElectrumConnection({ host: 'testnet.aranguren.org', ssl: '51002' }, TESTNET);
+        electrumConnection = new ElectrumConnection({ host: 'blockstream.info', ssl: '993' }, TESTNET);
         return electrumConnection.connect();
     });
 
@@ -26,8 +27,8 @@ describe('tests on testnet, server: ElectrumX', () => {
 
             const config = await electrumConnection.getConfig();
 
-            expect(config.host).to.equal('testnet.aranguren.org');
-            expect(config.port).to.equal('51002');
+            /*expect(config.host).to.equal('testnet.aranguren.org');
+            expect(config.port).to.equal('51002');*/
             expect(config.status).to.equal(1);
             expect(config.serverName).to.be.a("string")
 
@@ -118,7 +119,7 @@ describe('tests on testnet, server: ElectrumX', () => {
     // 34656da15bb76dad035e8ef41736746ae69a5d7bc594e8d8e279cd7200d608b2
     // f878d42858b9c4d68e07f9fb88f1719a6d498cb0044e08b9c24e2007e6638b59
 
-    it('test multiGetUtxoByAddresses (UTXOs by multiple addresses)',
+    it('test multiGetTransactionByTxid (Txs by multiple txIds)',
         async () => {
             // const electrumConnection = new ElectrumConnection({ host: 'testnet.aranguren.org', ssl: '51002' }, networks.testnet);
             //  await electrumConnection.connect();
@@ -131,6 +132,8 @@ describe('tests on testnet, server: ElectrumX', () => {
             const txIds = [tx01, tx02, tx03, tx04];
 
             let txs = await electrumConnection.multiGetTransactionByTxid(txIds);
+
+            console.log(txs);
 
             expect(txs[tx01].txid).to.equal(tx01);
             expect(txs[tx01].hash).to.equal('8d6afeec8238566718e05cd3544d35620efcb1c580d03215107541e6a7cee87e');

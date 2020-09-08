@@ -1,3 +1,7 @@
+//global.net = require('net'); // needed by Electrum client. For RN it is proviced in shim.js
+//global.tls = require('tls'); // needed by Electrum client. For RN it is proviced in shim.js
+
+
 const ElectrumClient = require('electrum-client');
 
 const bitcoin = require('bitcoinjs-lib');
@@ -38,7 +42,14 @@ class ElectrumConnection {
                     this.mainClient.disableBatching = true;
                     console.log(' disableBatching = true');
                 }
+
+                const header = await this.mainClient.blockchainHeaders_subscribe();
+                if (header && header.height) {
+                    this.mainClient.latestBlockheight = header.height;
+                    this.mainClient.latestBlockheightTimestamp = Math.floor(+new Date() / 1000);
+                }
             }
+
         } catch (e) {
             console.log('bad connection:', JSON.stringify(this.electrumPeer), e);
             throw new Error(e);
@@ -128,8 +139,11 @@ class ElectrumConnection {
             }
 
             for (const history of results) {
-                ret[scripthash2addr[history.param]] = history.result;
+                //ret[scripthash2addr[history.param]] = history.result;
                 //if (history.result[0]) this.txhashHeightCache[history.result[0].tx_hash] = history.result[0].height; // cache tx height
+                if (history.error) console.warn('multiGetHistoryByAddress():', history.error);
+                ret[scripthash2addr[history.param]] = history.result || [];
+
                 for (const hist of ret[scripthash2addr[history.param]]) {
                     hist.address = scripthash2addr[history.param];
                 }
@@ -226,13 +240,19 @@ class ElectrumConnection {
 
         if (this.txhashHeightCache[tx.txid]) {
 
-            tx.confirmations = utils.estimateCurrentBlockheight() - this.txhashHeightCache[tx.txid];
+            const latestBlockheight = this.mainClient.latestBlockheight;
+            const latestBlockheightTimestamp = this.mainClient.latestBlockheightTimestamp;
+
+            tx.confirmations = utils.estimateCurrentBlockheight(latestBlockheight, latestBlockheightTimestamp) - this.txhashHeightCache[tx.txid];
             if (tx.confirmations < 0) {
                 // ugly fix for when estimator lags behind
                 tx.confirmations = 1;
             }
-            tx.time = utils.calculateBlockTime(this.txhashHeightCache[tx.txid]);
-            tx.blocktime = utils.calculateBlockTime(this.txhashHeightCache[tx.txid]);
+
+            const blocktime = utils.calculateBlockTime(this.txhashHeightCache[tx.txid], latestBlockheight, latestBlockheightTimestamp);
+
+            tx.time = blocktime;
+            tx.blocktime = blocktime;
         }
 
         return tx;
@@ -292,6 +312,14 @@ class ElectrumConnection {
 
 }
 
+/*
+const main = async () => {
+    const electrumConnection = new ElectrumConnection({ host: 'testnet.aranguren.org', ssl: '51002' }, TESTNET);
+    await electrumConnection.connect();
+    await electrumConnection.closeConnection();
+}
 
+main();
+*/
 
 module.exports = { TESTNET, MAINNET, ElectrumConnection };

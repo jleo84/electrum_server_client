@@ -8,7 +8,7 @@ module.exports.txhexToElectrumTransaction = function (txhex, network) {
 
     const ret = {
         txid: tx.getId(),
-        hash: tx.getId(),
+        hash: tx.getHash(true).toString('hex').match(/../g).reverse().join(""),
         version: tx.version,
         size: Math.ceil(txhex.length / 2),
         vsize: tx.virtualSize(),
@@ -113,14 +113,26 @@ const LegacyWallet_scriptPubKeyToAddress = (scriptPubKey, network) => {
     return ret;
 }
 
-module.exports.estimateCurrentBlockheight = function () {
+module.exports.estimateCurrentBlockheight = function (latestBlockheight, latestBlockheightTimestamp) {
+
+    if (!!latestBlockheight && !!latestBlockheightTimestamp) {
+        const timeDiff = Math.floor(+new Date() / 1000) - latestBlockheightTimestamp;
+        const extraBlocks = Math.floor(timeDiff / (9.93 * 60));
+        return latestBlockheight + extraBlocks;
+    }
+
     const baseTs = 1587570465609; // uS
     const baseHeight = 627179;
-    return Math.floor(baseHeight + (+new Date() - baseTs) / 1000 / 60 / 9.5);
+    return Math.floor(baseHeight + (+new Date() - baseTs) / 1000 / 60 / 9.93);
 };
 
-module.exports.calculateBlockTime = function (height) {
+module.exports.calculateBlockTime = function (height, latestBlockheight, latestBlockheightTimestamp) {
+
+    if (latestBlockheight) {
+        return Math.floor(latestBlockheightTimestamp + (height - latestBlockheight) * 9.93 * 60);
+    }
+
     const baseTs = 1585837504; // sec
     const baseHeight = 624083;
-    return baseTs + (height - baseHeight) * 10 * 60;
+    return Math.floor(baseTs + (height - baseHeight) * 9.93 * 60);
 };
