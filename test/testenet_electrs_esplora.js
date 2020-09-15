@@ -8,7 +8,7 @@ var expect = chai.expect;
 
 
 // TX time and blocktime not reliable
-describe('tests on testnet, server: ElectrumX', () => {
+describe('tests on testnet, server: Electrs-Esplora', () => {
 
     let electrumConnection;
 
